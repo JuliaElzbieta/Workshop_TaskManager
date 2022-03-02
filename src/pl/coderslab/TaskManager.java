@@ -8,26 +8,25 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
 public class TaskManager {
-    public static void main(String[] args) {
-        File tasks = new File("tasks.csv");
-        Path taskPath = Paths.get("tasks.csv");
-        String[][] fileArray = new String[0][];
-        Scanner user = new Scanner(System.in);
-        String userChoice = "";
 
+    //private static File tasks = new File("tasks.csv");
+    private static Path taskPath = Paths.get("tasks.csv");
+    private static Scanner user = new Scanner(System.in);
+    private static String[][] fileArray = new String[0][];
+    private static String userChoice = "";
+
+    public static void main(String[] args) {
 // wczytywanie danych z pliku i zapisywanie ich do tablicy
         try {
             for (String s : Files.readAllLines(taskPath)) {
                 fileArray = Arrays.copyOf(fileArray, fileArray.length + 1);
-                String[] fileLine = s.split(", ");
-                fileArray[fileArray.length - 1] = fileLine;
+                fileArray[fileArray.length - 1] = s.split(", ");
             }
         } catch (IOException e) {
             e.getStackTrace();
@@ -35,9 +34,15 @@ public class TaskManager {
 
 //menu
         do {
-            System.out.print(ConsoleColors.BLUE + "Please select an option:");
-            System.out.println(ConsoleColors.RESET + "\nadd \nremove \nlist \nexit");
-            userChoice = user.nextLine();
+            while(true){
+                System.out.print(ConsoleColors.BLUE + "Please select an option:");
+                System.out.println(ConsoleColors.RESET + "\nadd \nremove \nlist \nexit");
+                userChoice = user.next();
+                if(userChoice.equals("add") || userChoice.equals("remove") || userChoice.equals("list") || userChoice.equals("exit")){
+                    break;
+                }
+            }
+
             switch (userChoice) {
                 case "add": fileArray = addTask(fileArray, user);
                     break;
@@ -51,22 +56,20 @@ public class TaskManager {
                     break;
             }
         } while (!userChoice.equals("exit"));
-
     }
 
     //dopisywanie do tablicy
     public static String[][] addTask (String[][] fileArray, Scanner user){
-        //Scanner user = new Scanner(System.in);
+        String addAnswer;
         String[] addToList = new String[3];
 
-        System.out.println("Please add task description");
-        String addAnswer = user.nextLine();
-        addToList[0] = addAnswer;
-        System.out.println("Please add task due date");
-        addAnswer = user.nextLine();
-        addToList[1] = addAnswer;
-        System.out.println("Is task important: true / false");
-        addAnswer = user.nextLine();
+        addToList[0] = stringAnswer("Please add task description", user);
+        addToList[1] = stringAnswer("Please add task due date", user);
+        while(true){
+        addAnswer = stringAnswer("Is task important: true / false", user);
+        if(addAnswer.equals("true") || addAnswer.equals("false")){
+            break;}
+        }
         addToList[2] = addAnswer;
         fileArray = Arrays.copyOf(fileArray, fileArray.length + 1);
         fileArray[fileArray.length - 1] = addToList;
@@ -76,22 +79,13 @@ public class TaskManager {
 
     //usuwanie wiersza
     public static String[][] removeTask (String[][] fileArray, Scanner user) {
-        //Scanner user = new Scanner(System.in);
         int removeAnswer = 0;
         System.out.println("Please select number to remove");
-        while (!user.hasNextInt()) {
-            user.next();
-            System.out.println("Please select correct number to remove");
-        }
-        removeAnswer = user.nextInt();
+        removeAnswer = correctNumber("Please select correct number to remove", user);
         if (removeAnswer >= fileArray.length || removeAnswer < 0) {
             do {
                 System.out.println("Number is out of list, choose correct number");
-                while (!user.hasNextInt()) {
-                    user.next();
-                    System.out.println("Please select correct number to remove");
-                }
-                removeAnswer = user.nextInt();   //<--- przypisujemy liczbe
+                removeAnswer = correctNumber("Please select correct number to remove", user);
             } while ((removeAnswer >= fileArray.length) || (removeAnswer < 0)); // <-- sprawdzamy warunek,
             // jeśli sie zgadza to powtarzamy pętle do{},
             // jesli się nie zgadza wychodzimy z pętli Z PRZYPISANĄ już wartościa
@@ -107,14 +101,10 @@ public class TaskManager {
     // nadpisywanie pliku csv
     public static void saveTaskList (String[][] fileArray, Path taskPath) {
         List<String> outList = new ArrayList<>();
-        //StringBuilder copyLine = new StringBuilder();
         for (int k = 0; k < fileArray.length; k++) {
-            //for (int j = 0; j < fileArray[k].length; j++) {
-            //copyLine.append(fileArray[k][j] + " ");
             String s = StringUtils.join(fileArray[k], ", ");
             outList.add(s);
         }
-        //copyLine.setLength(0);
         try {
             Files.write(taskPath, outList);
         } catch (IOException e) {
@@ -125,15 +115,27 @@ public class TaskManager {
     //wyświetlanie danych z aktualnej tablicy
     public static void taskList (String[][] fileArray) {
         StringBuilder str = new StringBuilder();
-        // StringBuilder str = new StringBuilder();
         for (int i = 0; i < fileArray.length; i++) {
             for (int j = 0; j < fileArray[i].length; j++) {
-                //for (String s : fileArray[i]) {
-                //System.out.print(i + s + " ");
                 str.append(fileArray[i][j] + "  ");
             }
             System.out.println(String.valueOf(i) + " : " + str);
             str.setLength(0);
         }
+    }
+
+    public static String stringAnswer (String message, Scanner scan){
+        System.out.println(message);
+        String answer = scan.nextLine();
+        return answer;
+    }
+
+    public static int correctNumber (String message, Scanner user){
+        while (!user.hasNextInt()) {
+            user.next();
+            System.out.println(message);
+        }
+        int answer = user.nextInt();
+        return answer;
     }
 }
