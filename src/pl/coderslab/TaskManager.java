@@ -97,7 +97,10 @@ public class TaskManager {
             // jesli się nie zgadza wychodzimy z pętli Z PRZYPISANĄ już wartościa
             //removeAnswer = user.nextInt();  <-- tutaj juz nie trzeba, bo przypisana zostanła 2 linijki wcześniej
             fileArray = ArrayUtils.remove(fileArray, removeAnswer);
+        } else {
+            fileArray = ArrayUtils.remove(fileArray, removeAnswer);
         }
+        user.nextLine();
         return fileArray;
     }
 
