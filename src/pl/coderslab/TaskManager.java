@@ -98,7 +98,7 @@ public class TaskManager {
         } else {
             fileArray = ArrayUtils.remove(fileArray, removeAnswer);
         }
-        //user.nextLine();
+        user.nextLine();
         return fileArray;
     }
 
