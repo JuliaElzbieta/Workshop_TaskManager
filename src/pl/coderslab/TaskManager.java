@@ -37,7 +37,7 @@ public class TaskManager {
             while(true){
                 System.out.print(ConsoleColors.BLUE + "Please select an option:");
                 System.out.println(ConsoleColors.RESET + "\nadd \nremove \nlist \nexit");
-                userChoice = user.next();
+                userChoice = user.nextLine(); //łapie wybór użytkownika + enter, który przechodzi do kolejnego polecenia
                 if(userChoice.equals("add") || userChoice.equals("remove") || userChoice.equals("list") || userChoice.equals("exit")){
                     break;
                 }
@@ -81,7 +81,11 @@ public class TaskManager {
     public static String[][] removeTask (String[][] fileArray, Scanner user) {
         int removeAnswer = 0;
         System.out.println("Please select number to remove");
-        removeAnswer = correctNumber("Please select correct number to remove", user);
+        while (!user.hasNextInt()) {
+            user.next();
+            System.out.println("Please select correct number to remove");
+        }
+        removeAnswer = user.nextInt();
         if (removeAnswer >= fileArray.length || removeAnswer < 0) {
             do {
                 System.out.println("Number is out of list, choose correct number");
@@ -94,7 +98,7 @@ public class TaskManager {
         } else {
             fileArray = ArrayUtils.remove(fileArray, removeAnswer);
         }
-        user.nextLine();
+        //user.nextLine();
         return fileArray;
     }
 
